@@ -40,8 +40,9 @@ run_data = []
 for idx in range(len(df)):
     run_data.append(
         (
-            material,
-            idx + 1
+            idx + 1,      # RUN_ID
+            material,     # MATERIAL_TYPE
+            idx + 1       # SOURCE_ROW_NO
         )
     )
 
@@ -50,13 +51,15 @@ cursor.executemany(
     """
     INSERT INTO pvd_run
     (
+        run_id,
         material_type,
         source_row_no
     )
     VALUES
     (
         :1,
-        :2
+        :2,
+        :3
     )
     """,
     run_data
@@ -111,7 +114,58 @@ print("SENSOR_MEASUREMENT 입력 완료")
 
 
 # ==========================
-# 5. 저장
+# 5. Thickness 데이터 읽기
+# ==========================
+
+y_file_path = "../data/raw/Y_pvd_AlCu.csv"
+
+df_y = pd.read_csv(y_file_path)
+
+print("Thickness CSV 로드 완료")
+
+
+thickness_data = []
+
+
+for idx, row in df_y.iterrows():
+
+    run_id = idx + 1
+
+    for point_no, value in enumerate(row, start=1):
+
+        thickness_data.append(
+            (
+                run_id,
+                point_no,
+                value
+            )
+        )
+
+
+cursor.executemany(
+    """
+    INSERT INTO thickness_measurement
+    (
+        run_id,
+        measurement_point,
+        thickness_value
+    )
+    VALUES
+    (
+        :1,
+        :2,
+        :3
+    )
+    """,
+    thickness_data
+)
+
+
+print("THICKNESS_MEASUREMENT 입력 완료")
+
+
+# ==========================
+# 6. 저장 및 종료
 # ==========================
 
 connection.commit()
@@ -119,4 +173,4 @@ connection.commit()
 cursor.close()
 connection.close()
 
-print("완료")
+print("전체 데이터 입력 완료")

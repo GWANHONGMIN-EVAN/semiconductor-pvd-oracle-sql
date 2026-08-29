@@ -1,496 +1,252 @@
-# \# Semiconductor PVD Process Data Analysis using Oracle SQL
+\# Semiconductor PVD Process Data Analysis using Oracle SQL
 
-# 
 
-# Python과 Oracle Database를 활용하여 반도체 PVD(Physical Vapor Deposition) 공정 데이터를
 
-# 관계형 데이터베이스로 구축하고, Sensor 데이터와 Thickness 결과 데이터를 분석하여
+Python과 Oracle Database를 활용해 반도체 PVD 공정 데이터를 관계형 데이터베이스로 구축하고, Sensor 데이터와 Thickness 결과 데이터를 분석함.
 
-# 공정 품질 특성과 주요 영향 변수를 도출하는 프로젝트
 
-# 
 
-# 
+공정 품질 특성 비교 및 주요 영향 Sensor 탐색 프로젝트.
 
-# \---
 
-# 
 
-# \# 1. Project Overview
+\## 1. Project Overview
 
-# 
 
-# \## Objective
 
-# 
+\### Objective
 
-# PVD 공정 과정에서 측정되는 Sensor 데이터(X)와
+PVD 공정 데이터를 활용하여 아래 분석 수행.
 
-# 증착 완료 후 측정되는 Thickness 데이터(Y)를 활용하여
 
-# 
 
-# \- 소재별 박막 두께 특성 비교
+\- 소재별 Thickness 특성 비교
 
-# \- Thickness 균일도 분석
+\- Thickness 균일도 분석
 
-# \- Sensor와 Thickness 간 상관관계 분석
+\- Sensor와 Thickness 간 상관관계 분석
 
-# 
 
-# 을 수행
 
-# 
+\### Dataset
 
-# \---
 
-# 
 
-# \# 2. Tech Stack
+|Data|Description|
 
-# 
+|---|---|
 
-# \## Database
+|X\_pvd\_AlCu.csv|AlCu 공정 Sensor 데이터|
 
-# 
+|Y\_pvd\_AlCu.csv|AlCu 공정 Thickness 데이터|
 
-# \- Oracle Database
+|X\_pvd\_WTi.csv|WTi 공정 Sensor 데이터|
 
-# \- SQL Developer
+|Y\_pvd\_WTi.csv|WTi 공정 Thickness 데이터|
 
-# 
 
-# 
 
-# \## Data Processing
+\## 2. Tech Stack
 
-# 
 
-# \- Python
 
-# \- Pandas
+|Category|Tool|
 
-# \- Matplotlib
+|---|---|
 
-# \- python-oracledb
+|Database|Oracle Database, SQL Developer|
 
-# 
+|Processing|Python, Pandas|
 
-# 
+|Visualization|Matplotlib|
 
-# \## Development Environment
+|Environment|VS Code, GitHub|
 
-# 
 
-# \- GitHub
 
-# \- VS Code
+\## 3. Data Pipeline
 
-# 
 
-# 
 
-# \---
+```
 
-# 
+Raw CSV Data
 
-# \# 3. Dataset Structure
+&#x20;     ↓
 
-# 
+Python(Pandas)
 
-# 사용 데이터:
+&#x20;     ↓
 
-# 
+Oracle Database
 
-# | File | Description |
+&#x20;     ↓
 
-# |---|---|
+SQL Analysis
 
-# | X\_pvd\_AlCu.csv | AlCu 공정 Sensor 데이터 |
+```
 
-# | Y\_pvd\_AlCu.csv | AlCu 공정 Thickness 데이터 |
 
-# | X\_pvd\_WTi.csv | WTi 공정 Sensor 데이터 |
 
-# | Y\_pvd\_WTi.csv | WTi 공정 Thickness 데이터 |
+Python 기반 ETL Pipeline을 구축하여 Raw 데이터를 Oracle Database에 적재하고 분석 환경 구성.
 
-# 
 
-# 
 
-# 데이터 구조:
+\## 4. Database Design
 
-# 
 
-# ```
 
-# Raw CSV Data
+PVD 공정 데이터를 Run 기준으로 관리하기 위해 관계형 구조로 설계함.
 
-# 
 
-# &#x20;       ↓
 
-# 
+```
 
-# Python(Pandas)
+&#x20;             PVD\_RUN
 
-# 
+&#x20;                |
 
-# &#x20;       ↓
+&#x20;     -----------------------
 
-# 
+&#x20;     |                     |
 
-# Oracle Database
+&#x20;     ↓                     ↓
 
-# 
+SENSOR\_MEASUREMENT  THICKNESS\_MEASUREMENT
 
-# &#x20;       ↓
+```
 
-# 
 
-# SQL Analysis
 
-# ```
+|Table|Description|
 
-# 
+|---|---|
 
-# \---
+|PVD\_RUN|공정 Run 및 소재 정보 관리|
 
-# 
+|SENSOR\_MEASUREMENT|증착 과정 Sensor 데이터 저장|
 
-# \# 4. Database Design
+|THICKNESS\_MEASUREMENT|증착 결과 Thickness 데이터 저장|
 
-# 
 
-# Oracle Database 내에서 PVD 공정 데이터를 정규화하여 관리 - python 이용
 
-# 
+\## 5. Analysis Result
 
-# \## Table Structure
 
-# 
 
-# ```
+\### 5.1 Thickness Uniformity
 
-# PVD\_RUN
 
-# 
 
-# &#x20;   |
+Material별 Thickness Standard Deviation 비교.
 
-# 
 
-# &#x20;   ├── SENSOR\_MEASUREMENT
 
-# 
+|Material|Thickness STD|
 
-# &#x20;   |
+|---|---:|
 
-# 
+|AlCu|0.1126|
 
-# &#x20;   └── THICKNESS\_MEASUREMENT
+|WTi|0.1595|
 
-# ```
 
-# 
 
-# 
+!\[Thickness Uniformity](images/thickness\_uniformity.png)
 
-# \## PVD\_RUN
 
-# 
 
-# 공정 Run 정보 및 소재 정보 관리
+\*\*Insight\*\*
 
-# 
+\- AlCu 공정이 WTi 대비 낮은 Thickness STD를 보여 상대적으로 균일한 증착 특성을 확인함.
 
-# 
 
-# \## SENSOR\_MEASUREMENT
 
-# 
+\### 5.2 Sensor Impact Analysis
 
-# 증착 과정에서 측정된 Sensor 데이터 저장
 
-# 
 
-# 
+Sensor 데이터와 Thickness 결과 간 상관관계를 분석하여 영향 가능성이 높은 Sensor 탐색.
 
-# \## THICKNESS\_MEASUREMENT
 
-# 
 
-# 증착 완료 후 측정된 Thickness 결과 데이터 저장
+\#### AlCu
 
-# 
 
-# 
 
-# \---
+!\[AlCu Sensor Correlation](images/sensor\_correlation\_AlCu.png)
 
-# 
 
-# \# 5. Data Pipeline
 
-# 
+\- Sensor\_40이 가장 높은 상관관계 확인
 
-# 
+\- 특정 Sensor 단독보다 여러 Sensor가 복합적으로 영향을 주는 형태 확인
 
-# \## Step 1. Data Loading
 
-# 
 
-# Python(Pandas)을 활용하여 Raw CSV 데이터를 읽고
+\#### WTi
 
-# Oracle Database 적재를 위한 형태로 변환
 
-# 
 
-# 
+!\[WTi Sensor Correlation](images/sensor\_correlation\_WTi.png)
 
-# \## Step 2. Database Loading
 
-# 
 
-# Python과 Oracle 연결을 통해:
+\- Sensor\_88에서 높은 상관관계(0.72) 확인
 
-# 
+\- Thickness 변화와 관련성이 높은 주요 공정 변수 후보로 판단
 
-# \- PVD\_RUN
 
-# \- SENSOR\_MEASUREMENT
 
-# \- THICKNESS\_MEASUREMENT
+\## 6. Project Structure
 
-# 
 
-# 테이블에 데이터를 적재
 
-# 
+```
 
-# 
+semiconductor-pvd-oracle-sql
 
-# \## Step 3. SQL Analysis
 
-# 
 
-# Oracle SQL을 활용하여 소재별 Thickness 특성 분석
+├── analysis
 
-# 
+├── data
 
-# 
+├── docs
 
-# \---
+├── images
 
-# 
+├── python
 
-# \# 6. Analysis Result
+├── sql
 
-# 
+└── README.md
 
-# 
+```
 
-# \## 6.1 Thickness Uniformity Analysis
 
-# 
 
-# 
+\## 7. Key Achievement
 
-# Material별 Thickness Standard Deviation 비교
 
-# 
 
-# 
+\- Python 기반 PVD 공정 데이터 ETL Pipeline 구축
 
-# |Material|Thickness STD|
+\- Oracle Database 관계형 데이터 모델 설계
 
-# |-|-|
+\- SQL 기반 Thickness 품질 분석 수행
 
-# |AlCu|0.1126|
+\- Sensor-Thickness 상관분석을 통한 주요 공정 변수 탐색
 
-# |WTi|0.1595|
 
-# 
 
-# 
+\## 8. Future Improvement
 
-# !\[Thickness Uniformity](images/thickness\_uniformity.png)
 
-# 
 
-# 
+\- Sensor 기반 이상 공정 탐지
 
-# \### Insight
+\- 공정 조건별 추가 분석
 
-# 
-
-# AlCu 공정은 WTi 대비 낮은 Thickness STD를 보여
-
-# 상대적으로 균일한 박막 증착 특성을 나타냄
-
-# 
-
-# 
-
-# 
-
-# \---
-
-# 
-
-# \# 6.2 Sensor Impact Analysis
-
-# 
-
-# 
-
-# Sensor 데이터와 Thickness 결과 간 상관관계를 분석하여
-
-# 공정 영향 가능성이 높은 Sensor를 탐색
-
-# 
-
-# 
-
-# \## AlCu
-
-# 
-
-# 
-
-# !\[AlCu Sensor Correlation](images/sensor\_correlation\_AlCu.png)
-
-# 
-
-# 
-
-# AlCu 공정에서는 Sensor\_40이 가장 높은 상관관계를 보였으나,
-
-# 특정 Sensor 하나보다는 여러 Sensor가 복합적으로 영향을 주는 형태로 판단함. ( 상관계수 값 상대적으로 적음)
-
-# 
-
-# 
-
-# \## WTi
-
-# 
-
-# 
-
-# !\[WTi Sensor Correlation](images/sensor\_correlation\_WTi.png)
-
-# 
-
-# 
-
-# WTi 공정에서는 Sensor\_88이 높은 상관관계를 보여
-
-# Thickness 변화와 관련성이 높은 주요 공정 변수 후보로 확인됨 -> 앞으로의 공정 수정에 가중치 두어서 판단
-
-# 
-
-# 
-
-# \---
-
-# 
-
-# \# 7. Project Structure
-
-# 
-
-# 
-
-# ```
-
-# semiconductor-pvd-oracle-sql
-
-# 
-
-# ├── analysis
-
-# │   ├── sensor\_correlation\_AlCu.csv
-
-# │   └── sensor\_correlation\_WTi.csv
-
-# │
-
-# ├── data
-
-# │   └── raw dataset
-
-# │
-
-# ├── docs
-
-# │   └── analysis\_result.md
-
-# │
-
-# ├── images
-
-# │   ├── thickness\_uniformity.png
-
-# │   ├── sensor\_correlation\_AlCu.png
-
-# │   └── sensor\_correlation\_WTi.png
-
-# │
-
-# ├── python
-
-# │   ├── 01\_check\_connection.py
-
-# │   ├── 02\_load\_data.py
-
-# │   ├── 03\_sensor\_analysis.py
-
-# │   └── 04\_visualization.py
-
-# │
-
-# └── sql
-
-# ```
-
-# 
-
-# 
-
-# \---
-
-# 
-
-# \# 8. Future Improvement
-
-# 
-
-# 향후 개선 방향:
-
-# 
-
-# \- Sensor 데이터 기반 이상 공정 탐지
-
-# \- 공정 조건별 추가 분석
-
-# \- Regression 기반 영향 변수 분석
-
-# 
-
-# \---
-
-# 
-
-# \# 9. Key Achievement
-
-# 
-
-# \- Python 기반 데이터 전처리 및 Oracle Database 적재 Pipeline 구축
-
-# \- 반도체 PVD 공정 데이터를 관계형 DB 구조로 설계
-
-# \- SQL 기반 Thickness 품질 분석 수행
-
-# \- Sensor와 Thickness 간 상관관계 분석을 통한 주요 공정 변수 탐색
+\- Regression 기반 영향 변수 분석
 

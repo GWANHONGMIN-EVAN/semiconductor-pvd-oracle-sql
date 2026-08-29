@@ -16,11 +16,12 @@ print("Oracle 연결 성공")
 
 
 # ==========================
-# 2. 분석 데이터 조회
+# 2. 데이터 조회
 # ==========================
 
 query = """
 SELECT
+    r.material_type,
     s.run_id,
     s.sensor_no,
     s.sensor_value,
@@ -28,7 +29,10 @@ SELECT
 FROM sensor_measurement s
 JOIN thickness_measurement t
 ON s.run_id = t.run_id
+JOIN pvd_run r
+ON s.run_id = r.run_id
 GROUP BY
+    r.material_type,
     s.run_id,
     s.sensor_no,
     s.sensor_value
@@ -46,63 +50,75 @@ print(df.head())
 
 
 # ==========================
-# 3. Sensor별 상관관계 분석
+# 3. 소재별 Sensor 상관분석
 # ==========================
 
-correlation_result = []
+materials = df["MATERIAL_TYPE"].unique()
 
 
-for sensor_no, group in df.groupby("SENSOR_NO"):
+for material in materials:
 
-    corr = group["SENSOR_VALUE"].corr(
-        group["THICKNESS_VALUE"]
-    )
-
-    correlation_result.append(
-        (
-            sensor_no,
-            corr
-        )
-    )
+    print("\n====================")
+    print(material)
+    print("====================")
 
 
-result_df = pd.DataFrame(
-    correlation_result,
-    columns=[
-        "sensor_no",
-        "correlation"
+    material_df = df[
+        df["MATERIAL_TYPE"] == material
     ]
-)
 
 
-# 절대값 기준 정렬
-result_df["abs_correlation"] = (
-    result_df["correlation"]
-    .abs()
-)
+    correlation_result = []
 
 
-result_df = result_df.sort_values(
-    by="abs_correlation",
-    ascending=False
-)
+    for sensor_no, group in material_df.groupby("SENSOR_NO"):
+
+        corr = group["SENSOR_VALUE"].corr(
+            group["THICKNESS_VALUE"]
+        )
+
+        correlation_result.append(
+            (
+                sensor_no,
+                corr
+            )
+        )
 
 
-print("\nSensor 영향도 TOP 10")
-
-print(
-    result_df.head(10)
-)
-
-
-# ==========================
-# 4. 저장
-# ==========================
-
-result_df.to_csv(
-    "../analysis/sensor_correlation.csv",
-    index=False
-)
+    result_df = pd.DataFrame(
+        correlation_result,
+        columns=[
+            "sensor_no",
+            "correlation"
+        ]
+    )
 
 
-print("\n분석 결과 저장 완료")
+    result_df["abs_correlation"] = (
+        result_df["correlation"]
+        .abs()
+    )
+
+
+    result_df = result_df.sort_values(
+        by="abs_correlation",
+        ascending=False
+    )
+
+
+    print("Sensor 영향도 TOP 10")
+
+    print(
+        result_df.head(10)
+    )
+
+
+    # 저장
+
+    result_df.to_csv(
+        f"../analysis/sensor_correlation_{material}.csv",
+        index=False
+    )
+
+
+print("\n소재별 Sensor 분석 완료")

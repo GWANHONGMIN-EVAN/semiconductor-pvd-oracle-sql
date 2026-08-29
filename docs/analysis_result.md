@@ -201,3 +201,59 @@ CV를 통해 평균 Thickness 대비 변동성을 확인하여 소재별 상대�
 
 - 본 분석 결과를 기반으로 향후 Sensor별 영향도 분석 및 이상 공정 탐지를 수행할 예정이다.
 
+
+
+## Sensor Impact Analysis
+
+Material별 Sensor와 Thickness 간 상관관계를 분석하였다.
+
+### AlCu
+
+AlCu 공정에서는 Sensor_40이 가장 높은 양의 상관관계를 보였으나,
+Correlation 값은 0.345 수준으로 특정 Sensor 하나가 Thickness를 지배하기보다는
+여러 공정 변수가 복합적으로 영향을 미치는 것으로 판단된다.
+
+
+### WTi
+
+WTi 공정에서는 Sensor_88이 0.721의 높은 양의 상관관계를 보여
+Thickness 변화와 강한 관계를 가지는 주요 공정 변수 후보로 확인되었다.
+
+
+### Comparison
+
+AlCu는 다수 Sensor의 분산된 영향 형태를 보인 반면,
+WTi는 특정 Sensor(Sensor_88)의 영향도가 상대적으로 크게 나타났다.
+
+향후 회귀 분석 및 Feature Importance 분석을 통해
+실제 Thickness 변화에 영향을 미치는 주요 공정 변수를 추가 검증할 예정이다.
+
+
+
+# 8. Visualization Result
+
+
+## Thickness Uniformity
+
+![Thickness Uniformity](../images/thickness_uniformity.png)
+
+Material별 Thickness Standard Deviation을 비교하였다.
+
+AlCu 공정은 WTi 대비 낮은 Thickness STD를 보여 상대적으로 균일한 박막 증착 특성을 나타냈다.
+
+
+## AlCu Sensor Impact
+
+![AlCu Sensor Correlation](../images/sensor_correlation_AlCu.png)
+
+AlCu 공정에서는 Sensor_40이 가장 높은 상관계수를 보였으나,
+Correlation 값은 0.35 수준으로 특정 Sensor 하나보다는 여러 공정 변수가 복합적으로 영향을 주는 것으로 판단된다.
+
+
+## WTi Sensor Impact
+
+![WTi Sensor Correlation](../images/sensor_correlation_WTi.png)
+
+WTi 공정에서는 Sensor_88이 0.72의 높은 상관계수를 보여
+Thickness 변화와 강한 관계를 가지는 주요 공정 변수 후보로 확인되었다.
+
